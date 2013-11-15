@@ -1,4 +1,4 @@
-# ruby-gemset=cs169.2x
+#ruby=1.9.3@cs169.2x
 
 env = ENV["RAILS_ENV"] || 'development'
 dbfile = File.expand_path("../config/database.yml", __FILE__)
