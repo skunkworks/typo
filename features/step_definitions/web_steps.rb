@@ -55,6 +55,53 @@ And /^I am logged into the admin panel$/ do
   end
 end
 
+Given /^I log in as "([^"]*)" with password "([^"]*)"$/ do |user_name, pw|
+  visit '/accounts/login'
+  fill_in 'user_login', :with => user_name  
+  fill_in 'user_password', :with => pw
+  click_button 'Login'
+end
+
+Given /the following users exist/ do |users_table|
+  users_table.hashes.each do |user|
+    User.create!(user)
+  end
+end
+
+Given /the following articles exist/ do |articles_table|
+  articles_table.hashes.each do |article|
+    article['user_id'] = User.find_by_name(article['author']).id
+    Article.create(article)
+    # Test: does Factory.create(:article, article) work?
+  end
+end
+
+Given /the following comments exist/ do |comments_table|
+  comments_table.hashes.each do |comment|
+    comment['article_id'] = Article.find_by_title(comment['article_title']).id
+    comment.delete('article_title')
+    Comment.create(comment)
+  end
+end
+
+When /^(?:|I )fill in "([^"]*)" with the article ID of "([^"]*)"$/ do |field, title|
+  article = Article.find_by_title(title)
+  fill_in(field, :with => article.id)
+end
+
+When /^I follow "(.*?)" or "(.*?)"$/ do |arg1, arg2|
+  if page.has_content?(arg1)
+    click_link(arg1)
+  elsif page.has_content?(arg2)
+    click_link(arg2)
+  end
+end
+
+Then /^I should see the author as "([^"]*)" or "([^"]*)"$/ do |arg1, arg2|
+  assert (page.has_xpath?('.//table/tr/td[@class="first"]/following-sibling::td[2]', :text => arg1) ||
+          page.has_xpath?('.//table/tr/td[@class="first"]/following-sibling::td[2]', :text => arg2))
+end
+
 # Single-line step scoper
 When /^(.*) within (.*[^:])$/ do |step, parent|
   with_scope(parent) { When step }

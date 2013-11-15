@@ -630,5 +630,57 @@ describe Article do
     end
 
   end
+
+  describe '#merge' do
+    let (:article)       { Factory.create(:article, :body => "article body") }
+    let (:merge_article) { Factory.create(:article, :body => "merged article body") }
+
+    context 'with a valid merge article ID' do
+
+      it 'appends the merge article body' do
+        merged_content = "#{article.body}\n#{merge_article.body}"
+        article.merge(merge_article.id)
+        expect(Article.find(article.id).body).to eq(merged_content)
+      end
+
+      it "sets the merged article title to either original article's title" do
+        titles = [article.title, merge_article.title]
+        article.merge(merge_article.id)
+        expect(titles).to include(Article.find(article.id).title)
+      end
+
+      it "sets the merged article's author to either article's author" do
+        authors = [article.author, merge_article.author]
+        article.merge(merge_article.id)
+        expect(authors).to include(Article.find(article.id).author)
+      end
+
+      it "merges comments from the original articles" do
+        comment1 = Factory.create(:comment, :author => "Author 1", :body => "Comment 1",
+                                  :article_id => article.id)
+        comment2 = Factory.create(:comment, :author => "Author 2", :body => "Comment 2",
+                                  :article_id => merge_article.id)
+        article.merge(merge_article.id)
+        expect(Comment.find(comment1.id).article_id).to eq(Comment.find(comment2.id).article_id)
+      end
+
+      it 'deletes the merge article' do
+        article.merge(merge_article)
+        expect(Article.find_by_id(merge_article.id)).to be_nil
+      end
+    end
+
+    context 'with an invalid merge article ID' do
+      it 'raises an exception' do
+        expect { article.merge(1000) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+    end
+
+    context 'with the same merge article ID' do
+      it 'raises an exception' do
+        expect { article.merge(article.id) }.to raise_error(ArgumentError, "cannot merge article with itself")
+      end
+    end
+  end
 end
 

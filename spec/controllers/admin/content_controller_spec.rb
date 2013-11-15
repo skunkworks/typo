@@ -607,6 +607,59 @@ describe Admin::ContentController do
       end
     end
 
+    describe 'POST merge' do
+      let! (:merge_article) { Factory.create(:article, :body => 'merge article body') }
+
+      context 'with a valid merge article' do
+
+        it 'calls merge with the merge article id' do
+          Article.stub(:find).and_return(@article)
+          @article.should_receive(:merge).with(merge_article.id)
+          post :merge, { :id => @article.id, :merge_with => merge_article.id }
+        end
+        
+        it 'redirects to the content page' do
+          post :merge, { :id => @article.id, :merge_with => merge_article.id }
+          expect(response).to redirect_to(:action => 'edit', :id => @article.id)
+        end
+        
+        it 'sets the flash message' do
+          post :merge, { :id => @article.id, :merge_with => merge_article.id }
+          expect(flash[:notice]).to eq("Successfully merged with article ID #{merge_article.id}")
+        end
+      end
+
+      context "with a nonexistant merge article ID" do
+        it 'redirects to the edit content page' do
+          post :merge, { :id => @article.id, :merge_with => 1000 }
+          expect(response).to redirect_to("/admin/content/edit/#{@article.id}")
+        end
+
+        it 'sets the flash message' do
+          post :merge, { :id => @article.id, :merge_with => 1000 }
+          expect(flash[:error]).to eq("Unable to merge: article ID \"1000\" not found")
+        end
+      end
+
+      context 'with a blank merge article ID' do
+        it 'sets the flash message' do
+          post :merge, { :id => @article.id, :merge_with => '' }
+          expect(flash[:error]).to eq("Unable to merge: article ID must be specified")
+        end
+      end
+
+      context "with an identical merge article ID" do
+        it 'redirects to the edit content page' do
+          post :merge, { :id => @article.id, :merge_with => @article.id }
+          expect(response).to redirect_to("/admin/content/edit/#{@article.id}")
+        end
+
+        it 'sets the flash message' do
+          post :merge, { :id => @article.id, :merge_with => @article.id }
+          expect(flash[:error]).to eq("Unable to merge: cannot merge an article with itself")
+        end
+      end
+    end
   end
 
   describe 'with publisher connection' do
@@ -669,6 +722,19 @@ describe Admin::ContentController do
         end.should_not change(Article, :count)
       end
 
+    end
+
+    describe 'POST merge' do
+      let! (:merge_article) { Factory.create(:article, :body => 'merge article body') }
+
+      it 'redirects back to index' do
+        post :merge, { :id => @article.id, :merge_with => merge_article.id }
+        expect(response).to redirect_to(:action => 'index')
+      end
+      it 'sets a flash message' do
+        post :merge, { :id => @article.id, :merge_with => merge_article.id }
+        expect(flash[:error]).to eq("Access denied: only admins are allowed to merge articles")
+      end
     end
   end
 end

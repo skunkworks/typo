@@ -1,7 +1,7 @@
+# ruby-gemset=cs169.2x
+
 env = ENV["RAILS_ENV"] || 'development'
 dbfile = File.expand_path("../config/database.yml", __FILE__)
-
-# #ruby-gemset=1.9.3@cs169.2x
 
 #unless File.exists?(dbfile)
 #  raise "You need to configure config/database.yml first"
@@ -48,7 +48,8 @@ gem 'acts_as_tree_rails3'
 gem 'recaptcha', :require => 'recaptcha/rails', :branch => 'rails3'
 
 group :development, :test do
-  gem 'ruby-debug19'
+  #gem 'ruby-debug19'
+  gem 'debugger'
   gem 'factory_girl', '~> 2.2'
   gem 'webrat'
   gem 'rspec-rails', '~> 2.0'

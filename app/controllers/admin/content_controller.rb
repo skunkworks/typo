@@ -29,7 +29,8 @@ class Admin::ContentController < Admin::BaseController
 
   def edit
     @article = Article.find(params[:id])
-    unless @article.access_by? current_user
+    @current_user = current_user
+    unless @article.access_by? @current_user
       redirect_to :action => 'index'
       flash[:error] = _("Error, you are not allowed to perform this action")
       return
@@ -111,6 +112,32 @@ class Admin::ContentController < Admin::BaseController
       return true
     end
     render :text => nil
+  end
+
+  def merge
+    unless current_user.admin?
+      flash[:error] = "Access denied: only admins are allowed to merge articles"
+      redirect_to :action => 'index' and return      
+    end
+    if params[:merge_with].blank?
+      flash[:error] = "Unable to merge: article ID must be specified"
+      redirect_to "/admin/content/edit/#{params[:id]}" and return
+    end
+
+    @article = Article.find(params[:id])
+    merge_article = Article.find_by_id(params[:merge_with])
+
+    if merge_article.nil?
+      flash[:error] = "Unable to merge: article ID \"#{params[:merge_with]}\" not found"
+      redirect_to "/admin/content/edit/#{params[:id]}"
+    elsif merge_article.id == @article.id
+      flash[:error] = "Unable to merge: cannot merge an article with itself"
+      redirect_to "/admin/content/edit/#{params[:id]}"
+    else
+      @article.merge(merge_article.id)
+      flash[:notice] = "Successfully merged with article ID #{merge_article.id}"
+      redirect_to :action => 'edit', :id => params[:id]
+    end
   end
 
   protected

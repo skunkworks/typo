@@ -416,6 +416,19 @@ class Article < Content
     user.admin? || user_id == user.id
   end
 
+  def merge(id)
+    raise ArgumentError.new("cannot merge article with itself") if id == self.id
+    merge_article = Article.find(id)
+    self.body = "#{self.body}\n#{merge_article.body}"
+    if merge_article.comments.any?
+      self.comments << merge_article.comments
+      # reload necessary to prevent it from deleting what it thinks are still its comments
+      merge_article.reload
+    end
+    self.save!
+    merge_article.destroy
+  end
+
   protected
 
   def set_published_at

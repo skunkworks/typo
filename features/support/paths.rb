@@ -17,7 +17,11 @@ module NavigationHelpers
       '/'
     when /^the new article page$/
       '/admin/content/new'
-
+    when /^the edit content page for "([^"]*)"(?: or "([^"]*)")?$/
+      article = Article.find_by_title($1)
+      article = Article.find_by_title($2) if article.nil?
+      raise ActiveRecord::RecordNotFound("couldn't find #{$1} or #{$2}") if article.nil?
+      "/admin/content/edit/#{article.id}"
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #
