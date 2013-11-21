@@ -22,6 +22,8 @@ module NavigationHelpers
       article = Article.find_by_title($2) if article.nil?
       raise ActiveRecord::RecordNotFound("couldn't find #{$1} or #{$2}") if article.nil?
       "/admin/content/edit/#{article.id}"
+    when /^the new categories page$/
+      '/admin/categories/new'
     # Add more mappings here.
     # Here is an example that pulls values out of the Regexp:
     #
