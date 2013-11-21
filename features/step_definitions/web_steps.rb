@@ -84,6 +84,12 @@ Given /the following comments exist/ do |comments_table|
   end
 end
 
+Given /the following categories exist/ do |categories_table|
+  categories_table.hashes.each do |category|
+    Category.create(category)
+  end
+end
+
 When /^(?:|I )fill in "([^"]*)" with the article ID of "([^"]*)"$/ do |field, title|
   article = Article.find_by_title(title)
   fill_in(field, :with => article.id)

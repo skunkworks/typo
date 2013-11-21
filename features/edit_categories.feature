@@ -13,3 +13,4 @@ Background:
 Scenario: Successfully edit existing category
   Given I am logged into the admin panel
   When I go to the edit category page for "category1"
+  
