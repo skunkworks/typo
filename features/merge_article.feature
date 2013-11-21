@@ -28,7 +28,7 @@ Feature: Merge Articles
     Then I should be on the edit content page for "Article 1"
     And I should see "Merge Articles"
     When I fill in "merge_with" with the article ID of "Article 2"
-    And I press "Merge With This Article"
+    And I press "Merge"
     Then I should be on the edit content page for "Article 1" or "Article 2"
     And I should see "Successfully merged with article"
     When I go to the admin content page
