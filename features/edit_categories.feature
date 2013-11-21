@@ -13,4 +13,13 @@ Background:
 Scenario: Successfully edit existing category
   Given I am logged into the admin panel
   When I go to the edit category page for "category1"
-  
+  And I fill in "Name" with "category2"
+  And I fill in "Keywords" with "keyword2"
+  And I fill in "Permalink" with "mynewslug"
+  And I fill in "Description" with "qwerty"
+  And I press "Save"
+  Then I should be on the new categories page
+  And I should see "category2"
+  And I should see "keyword2"
+  And I should see "mynewslug"
+  And I should see "qwerty"
