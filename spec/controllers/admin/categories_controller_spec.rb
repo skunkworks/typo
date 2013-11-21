@@ -34,6 +34,18 @@ describe Admin::CategoriesController do
     end
   end
 
+  describe '#new' do
+    before { get :new }
+
+    it 'renders the new template' do
+      expect(response).to render_template('new')
+    end
+
+    it 'assigns a new category' do
+      expect(assigns(:category)).to be_a_new(Category)
+    end
+  end
+
   it "test_update" do
     post :edit, :id => Factory(:category).id
     assert_response :redirect, :action => 'index'
