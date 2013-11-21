@@ -35,6 +35,7 @@ class Admin::ContentController < Admin::BaseController
       flash[:error] = _("Error, you are not allowed to perform this action")
       return
     end
+    @mergeable = @current_user.admin?
     new_or_edit
   end
 
